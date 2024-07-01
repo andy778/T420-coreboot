@@ -2,7 +2,7 @@
 
 I have followed these guides except that i have used at FT232H instead of an raspberrypi for readding and writing the bios 
 
-[Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi)
+[Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi) and 
 [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
 
 
