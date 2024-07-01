@@ -10,3 +10,8 @@ I have followed these guides except that i have used at FT232H instead of an ras
 ```sh
 flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -r factory1.rom
 ```
+
+#### Write back the compiled BIOS
+```sh
+flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -w coreboot.rom
+```
