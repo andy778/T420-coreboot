@@ -14,12 +14,12 @@ I have followed these guides except that i have used at FT232H instead of an ras
 
 | Name | Color | Test clip pin# | FT232H pin#|
 | ---- | ----- | -------------- | ---------- | 
-| /CS  | Brown |                | AD3        | 
-| MISO | Yellow|                | AD1        | 
-| GND  | Black |                | +3.3V      | 
-| MOSI | Orange|                | AD1        | 
-| SCLK | Green |                | AD0        | 
-| VCC  | Red   |                | GND        | 
+| /CS  | Brown | 1              | AD3        | 
+| MISO | Yellow| 2              | AD1        | 
+| GND  | Black | 4              | +3.3V      | 
+| MOSI | Orange| 5              | AD1        | 
+| SCLK | Green | 6              | AD0        | 
+| VCC  | Red   | 8              | GND        | 
 
 
 
