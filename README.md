@@ -6,6 +6,13 @@ I have followed these guides except that i have used at FT232H instead of an ras
 [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
 
 
+### FT232H
+
+| Name | Color | Test clip pin# | FT232H pin#|
+| ---- | ----- | -------------- | ---------- | 
+| /CS  |       |                |            | 
+
+
 #### Read out the BIOS
 ```sh
 flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -r factory1.rom
