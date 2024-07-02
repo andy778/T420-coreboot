@@ -8,6 +8,8 @@ I have followed these guides except that i have used at FT232H instead of an ras
 
 ### FT232H 
 
+![FT232H and SOIC8 clip](FT232H.jpg)
+
 #### Pinnout 
 
 [FTDI_FT2232H](https://wiki.flashrom.org/FT2232SPI_Programmer#FTDI_FT2232H_Mini-Module)
