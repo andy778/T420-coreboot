@@ -2,8 +2,8 @@
 
 I have followed these guides except that i have used at FT232H instead of an raspberrypi for readding and writing the bios 
 
-[Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi) and 
-[t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
+* [Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi) and 
+* [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
 
 
 ### FT232H 
@@ -33,4 +33,18 @@ flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -r factory1.rom
 #### Write back the compiled BIOS
 ```sh
 flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -w coreboot.rom
+```
+
+## LIBREBOOT 
+
+I looked on this guide below for inspiration, one can't follow it exacly any more ate libreboot project have refactored especialluy the vendor files since this was made. I have used a debian bookworm container on top of a proxmox 
+-> 8 mb or ram, and 15 gb drive, 8 gb is to small 
+
+* [Installing libreboot on a ThinkPad T420](http://www.härdin.se/blog/2023/03/22/installing-libreboot-on-a-thinkpad-t420/)
+
+### Download and build the developmet envirement  
+```sh
+git clone https://codeberg.org/libreboot/lbmk
+cd lbmk
+./build dependencies debian
 ```
