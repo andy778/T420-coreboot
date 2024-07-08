@@ -1,6 +1,6 @@
 # T420-coreboot
 
-I have followed these guides except that i have used at FT232H instead of an raspberrypi for readding and writing the bios 
+I have followed these guides except that i have used at FT232H instead of an raspberrypi for readding and writing the bios to chipset [MX25L6406E](https://www.macronix.com/Lists/Datasheet/Attachments/8630/MX25L6406E,%203V,%2064Mb,%20v1.9.pdf)  
 
 * [Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi)
 * [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
