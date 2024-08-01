@@ -45,6 +45,9 @@ I looked on this guide below for inspiration, one can't follow it exacly any mor
 ### Download and build the developmet envirement  
 ```sh
 git clone https://codeberg.org/libreboot/lbmk
-cd lbmk
-./build dependencies debian
-```
+
+## Update flash after it have been flashed first time
+* [How do I "edit grub to add iomem=relaxed"?](https://askubuntu.com/questions/1120578/how-do-i-edit-grub-to-add-iomem-relaxed)
+
+```sh
+sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w coreboot.rom
