@@ -54,3 +54,9 @@ git clone https://codeberg.org/libreboot/lbmk
 sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w coreboot.rom
 ```
 
+## Tested hardware 
+* Updated CPU to Intel i7-3632QM and with core boot one can go to ivy bridge
+* AX210 Mini Pcie wlan 6E card  
+* BE200  Mini Pcie wlan 7  card
+* ATA Sandisk U100 in the Mini Pcie slot next to ram in the bottom  
+
