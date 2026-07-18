@@ -5,6 +5,8 @@ I have followed these guides except that I have used an FT232H instead of a Rasp
 * [Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi)
 * [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
 
+> **Status:** since 2026-07-18 the machine runs **Libreboot 26.01rev1** — see the [Libreboot update](#libreboot-update-done-2026-07-18-release-2601rev1) section. `config`, `vgabios.bin` and release 20240802 belong to the original 2024 custom coreboot build and are kept for history/rollback.
+
 
 ### FT232H 
 
@@ -35,7 +37,7 @@ flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -r factory1.rom
 flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -w coreboot.rom
 ```
 
-## LIBREBOOT 
+## LIBREBOOT (historical — first attempt notes from 2024)
 
 I looked at the guide below for inspiration; one can't follow it exactly any more as the libreboot project has refactored (especially the vendor files) since it was made. I have used a Debian Bookworm container on top of Proxmox 
 -> 8 GB of RAM and a 15 GB drive (8 GB is too small) 
@@ -76,7 +78,7 @@ sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w <rom>
 
 First boot is slow / may reset once (memory training). Bricked: FT232H + clip, write `backup-a.rom`.
 
-## Update flash after it has been flashed the first time
+## Update flash after it has been flashed the first time (historical — superseded by the Libreboot update section above)
 * [How do I "edit grub to add iomem=relaxed"?](https://askubuntu.com/questions/1120578/how-do-i-edit-grub-to-add-iomem-relaxed)
 
 ```sh
