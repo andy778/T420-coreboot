@@ -5,6 +5,8 @@ I have followed these guides except that I have used an FT232H instead of a Rasp
 * [Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi)
 * [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
 
+> **Status:** since 2026-07-18 the machine runs **Libreboot 26.01rev1** — see the [Libreboot update](#libreboot-update-done-2026-07-18-release-2601rev1) section. `config`, `vgabios.bin` and release 20240802 belong to the original 2024 custom coreboot build and are kept for history/rollback.
+
 
 ### FT232H 
 
@@ -35,7 +37,7 @@ flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -r factory1.rom
 flashrom -p ft2232_spi:type=232H -c MX25L6406E/MX25L6408E -w coreboot.rom
 ```
 
-## LIBREBOOT 
+## LIBREBOOT (historical — first attempt notes from 2024)
 
 I looked at the guide below for inspiration; one can't follow it exactly any more as the libreboot project has refactored (especially the vendor files) since it was made. I have used a Debian Bookworm container on top of Proxmox 
 -> 8 GB of RAM and a 15 GB drive (8 GB is too small) 
@@ -47,7 +49,36 @@ I looked at the guide below for inspiration; one can't follow it exactly any mor
 git clone https://codeberg.org/libreboot/lbmk
 ```
 
-## Update flash after it has been flashed the first time
+## Libreboot update (done 2026-07-18, release 26.01rev1)
+
+Running Libreboot `t420_8mb`, `seagrub_..._corebootfb_svenska.rom` (SeaBIOS + GRUB, libgfxinit, neutered ME). Built in a Proxmox CT with Debian Trixie; flashed internally on the T420 (kernel arg `iomem=relaxed`), no clip needed.
+
+```sh
+# 1. On the T420: backup current flash (read twice, sha256sum must match, keep off-laptop)
+sudo flashrom -p internal -c MX25L6406E/MX25L6408E -r backup-a.rom
+
+# 2. In the Proxmox CT (only dependencies as root, lbmk refuses sudo otherwise)
+git clone https://codeberg.org/libreboot/lbmk && cd lbmk
+git fetch --tags && git checkout <RELEASE>      # e.g. 26.01rev1
+sudo ./mk dependencies debian
+
+# 3. Get + verify ROMs (mirror: mirrors.mit.edu/libreboot/stable/<RELEASE>/roms/)
+wget <mirror>/libreboot-<RELEASE>_t420_8mb.tar.xz{,.sha512,.sig}
+sha512sum -c *.sha512 && gpg --verify *.sig     # key: libreboot.org/lbkey.asc
+
+# 4. Inject neutered ME + onboard NIC MAC  (stale "cannot create lock"? -> rm -f lock)
+./mk inject libreboot-<RELEASE>_t420_8mb.tar.xz setmac 00:21:cc:61:b8:5c
+
+# 5. Extract tarball, take bin/t420_8mb/seagrub_..._corebootfb_svenska.rom
+#    (ignore cache/DO_NOT_FLASH/)
+
+# 6. On the T420, AC plugged in, wait for VERIFIED — on error reflash backup, do NOT reboot
+sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w <rom>
+```
+
+First boot is slow / may reset once (memory training). Bricked: FT232H + clip, write `backup-a.rom`.
+
+## Update flash after it has been flashed the first time (historical — superseded by the Libreboot update section above)
 * [How do I "edit grub to add iomem=relaxed"?](https://askubuntu.com/questions/1120578/how-do-i-edit-grub-to-add-iomem-relaxed)
 
 ```sh
