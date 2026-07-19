@@ -78,6 +78,23 @@ sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w <rom>
 
 First boot is slow / may reset once (memory training). Bricked: FT232H + clip, write `backup-a.rom`.
 
+### Windows fix: add the vendor VGA option ROM
+
+Stock Libreboot uses libgfxinit + SeaVGABIOS (emulated INT 10h) — Linux boots fine but **Windows hangs at the boot logo**. The old 2024 build worked because it ran the real Intel VBIOS. Fix: inject `vgabios.bin` (in this repo) into the image with `cbfstool` (from lbmk, or the `libreboot-<RELEASE>_util.tar.xz` archive on the mirror):
+
+```sh
+cp seagrub_t420_8mb_libgfxinit_corebootfb_svenska.rom windows-fix.rom
+# SeaBIOS picks pciVVVV,DDDD.rom by live PCI ID -> 0166 = Ivy Bridge HD 4000 (i7-3632QM),
+# 0126 = Sandy Bridge HD 3000 (only runs if that CPU is installed; harmless to keep both)
+cbfstool windows-fix.rom add -f vgabios.bin -n "pci8086,0166.rom" -t optionrom
+cbfstool windows-fix.rom add -f vgabios.bin -n "pci8086,0126.rom" -t optionrom
+# drop the emulated shim so it can't fight the real VBIOS over INT 10h
+cbfstool windows-fix.rom remove -n vgaroms/seavgabios.bin
+cbfstool windows-fix.rom print   # sanity check; etc/pci-optionrom-exec must not be 0
+```
+
+Flash `windows-fix.rom` as in step 6 above. GRUB and Linux are unaffected.
+
 ## Update flash after it has been flashed the first time (historical — superseded by the Libreboot update section above)
 * [How do I "edit grub to add iomem=relaxed"?](https://askubuntu.com/questions/1120578/how-do-i-edit-grub-to-add-iomem-relaxed)
 
