@@ -21,8 +21,13 @@ ENV BOARD=t420_8mb \
     MAC=00:21:cc:61:b8:5c \
     MIRROR=https://mirrors.mit.edu/libreboot/stable
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git ca-certificates wget xz-utils gnupg gosu
+        git ca-certificates wget xz-utils gnupg gosu \
+    # lbmk's own `apt-get install` (in `./mk dependencies`) runs without -y;
+    # auto-confirm it since there's no TTY to answer the [Y/n] prompt.
+    && echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90assumeyes
 
 # lbmk refuses to run as root, so build/inject happen as this user.
 RUN useradd -m -u 1000 builder
