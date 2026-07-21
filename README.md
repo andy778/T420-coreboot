@@ -112,6 +112,8 @@ docker run --rm -v "$PWD/out:/output" t420-rom
 
 Override defaults with `-e` on `docker run` (`MAC`, `VARIANT`, `BOARD`, `MIRROR`). Still verify + flash on the T420 yourself — the container only builds the ROM.
 
+Verified 2026-07-21: the Docker-built ROM's sha256sum matched the manually built `windows-fix2.rom` byte-for-byte.
+
 ## Update flash after it has been flashed the first time (historical — superseded by the Libreboot update section above)
 * [How do I "edit grub to add iomem=relaxed"?](https://askubuntu.com/questions/1120578/how-do-i-edit-grub-to-add-iomem-relaxed)
 
