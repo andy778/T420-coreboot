@@ -5,7 +5,7 @@ I have followed these guides except that I have used an FT232H instead of a Rasp
 * [Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi)
 * [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
 
-> **Status:** since 2026-07-18 the machine runs **Libreboot 26.01rev1** (`txtmode` variant patched with the vendor Intel VBIOS so Windows 11 boots and there's no colour flicker) — see the [Libreboot update](#libreboot-update-done-2026-07-18-release-2601rev1) section. `config` and release 20240802 belong to the original 2024 custom coreboot build and are kept for history/rollback; `vgabios.bin` is still in active use (it's the VBIOS the fix injects).
+> **Status:** since 2026-07-21 the machine runs **Libreboot 26.01rev1** (`txtmode` variant patched with the vendor Intel VBIOS so Windows 11 boots and there's no colour flicker) — see the [Libreboot update](#libreboot-update-done-2026-07-18-release-2601rev1) section, ROM in [release 20260721](https://github.com/andy778/T420-coreboot/releases/tag/20260721). `config` and release 20240802 belong to the original 2024 custom coreboot build and are kept for history/rollback; `vgabios.bin` is still in active use (it's the VBIOS the fix injects).
 
 
 ### FT232H 
