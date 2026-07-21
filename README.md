@@ -84,7 +84,7 @@ First boot is slow / may reset once (memory training). Bricked: FT232H + clip, w
 
 Stock Libreboot uses libgfxinit + SeaVGABIOS (emulated INT 10h): Linux boots but **Windows 11 hangs at the boot logo**, and on the `corebootfb` variant adding the VBIOS gives Kali **colour flicker at startup** (framebuffer vs. VGA double-init). The 2024 build never had this because it used **text-mode SeaBIOS + the real Intel VBIOS**. So: use the `txtmode` variant and inject `vgabios.bin` (in this repo).
 
-Get `cbfstool` from lbmk, or from the `libreboot-<RELEASE>_util.tar.xz` archive on the mirror.
+Get `cbfstool`: Debian/Ubuntu `sudo apt install coreboot-utils`, or build it from lbmk's coreboot source. (There is no util tarball on the mirror — only `roms/` and the full source tarball are published.)
 
 ```sh
 cp seagrub_t420_8mb_libgfxinit_txtmode_svenska.rom windows-fix.rom
@@ -101,7 +101,7 @@ Flash `windows-fix.rom` as in step 6 above. GRUB is plain text (not the graphica
 
 ### One-shot Docker build
 
-`docker/` wraps steps 2–5 + the VBIOS patch into one image, so next release = rebuild with a new `RELEASE`. It downloads and GPG-verifies the ROM + util tarballs, injects ME + MAC, patches the `txtmode` variant, and drops the finished ROM in `./out/`.
+`docker/` wraps steps 2–5 + the VBIOS patch into one image, so next release = rebuild with a new `RELEASE`. It downloads and GPG-verifies the ROM tarball, injects ME + MAC, patches the `txtmode` variant (using `cbfstool` from Debian's `coreboot-utils` package), and drops the finished ROM in `./out/`.
 
 ```sh
 # from the repo root (needs network for the ME blob download during inject)

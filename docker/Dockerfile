@@ -16,6 +16,8 @@ ARG RELEASE=26.01rev1
 ENV RELEASE=${RELEASE}
 
 # Runtime knobs (override with -e on `docker run`)
+# cbfstool comes from Debian's coreboot-utils package (no _util.tar.xz exists
+# on the mirror -- only roms/ and the full src tarball are published).
 ENV BOARD=t420_8mb \
     VARIANT=seagrub_t420_8mb_libgfxinit_txtmode_svenska \
     MAC=00:21:cc:61:b8:5c \
@@ -24,7 +26,7 @@ ENV BOARD=t420_8mb \
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git ca-certificates wget xz-utils gnupg gosu \
+        git ca-certificates wget xz-utils gnupg gosu coreboot-utils \
     # lbmk's own `apt-get install` (in `./mk dependencies`) runs without -y;
     # auto-confirm it since there's no TTY to answer the [Y/n] prompt.
     && echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90assumeyes
