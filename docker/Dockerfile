@@ -22,20 +22,23 @@ ENV BOARD=t420_8mb \
     MIRROR=https://mirrors.mit.edu/libreboot/stable
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git ca-certificates wget xz-utils gnupg gosu \
-    && rm -rf /var/lib/apt/lists/*
+        git ca-certificates wget xz-utils gnupg gosu
 
 # lbmk refuses to run as root, so build/inject happen as this user.
 RUN useradd -m -u 1000 builder
 
 # Clone + pin lbmk, install its build dependencies (root-only step).
-RUN git clone https://codeberg.org/libreboot/lbmk /home/builder/lbmk \
+# apt-get update again here: `./mk dependencies` runs its own apt-get install,
+# so the package index must still be present.
+RUN apt-get update \
+    && git clone https://codeberg.org/libreboot/lbmk /home/builder/lbmk \
     && cd /home/builder/lbmk \
     && git fetch --tags \
     && git checkout "${RELEASE}" \
     && ./mk dependencies debian \
     && git config --global user.name "builder" \
-    && git config --global user.email "builder@localhost"
+    && git config --global user.email "builder@localhost" \
+    && rm -rf /var/lib/apt/lists/*
 
 # The real Intel VBIOS + the patch/entrypoint script from this repo.
 COPY vgabios.bin /home/builder/vgabios.bin
