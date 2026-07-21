@@ -43,8 +43,6 @@ RUN apt-get update \
     && git fetch --tags \
     && git checkout "${RELEASE}" \
     && ./mk dependencies debian \
-    && git config --system user.name "builder" \
-    && git config --system user.email "builder@localhost" \
     && rm -rf /var/lib/apt/lists/*
 
 # The real Intel VBIOS + the patch/entrypoint script from this repo.

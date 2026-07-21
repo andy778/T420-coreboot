@@ -12,6 +12,12 @@ echo ">> Release=${RELEASE} board=${BOARD} variant=${VARIANT} mac=${MAC}"
 
 cd "${LBMK}"
 
+# lbmk's own sanity check literally runs `git config --global user.name`,
+# which only reads ~/.gitconfig -- it ignores --system config, so this has
+# to be set for this user specifically (not at image-build time as root).
+git config --global user.name "builder"
+git config --global user.email "builder@localhost"
+
 # 1. Import the Libreboot signing key (idempotent).
 wget -q -O /tmp/lbkey.asc https://libreboot.org/lbkey.asc
 gpg --import /tmp/lbkey.asc
