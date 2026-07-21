@@ -5,7 +5,7 @@ I have followed these guides except that I have used an FT232H instead of a Rasp
 * [Lenovo T420 Coreboot W/Raspberry Pi](https://www.instructables.com/Lenovo-T420-Coreboot-WRaspberry-Pi)
 * [t420-coreboot-guide](https://github.com/nenadstoisavljevic/t420-coreboot-guide?tab=readme-ov-file)
 
-> **Status:** since 2026-07-18 the machine runs **Libreboot 26.01rev1** — see the [Libreboot update](#libreboot-update-done-2026-07-18-release-2601rev1) section. `config`, `vgabios.bin` and release 20240802 belong to the original 2024 custom coreboot build and are kept for history/rollback.
+> **Status:** since 2026-07-18 the machine runs **Libreboot 26.01rev1** (`txtmode` variant patched with the vendor Intel VBIOS so Windows 11 boots and there's no colour flicker) — see the [Libreboot update](#libreboot-update-done-2026-07-18-release-2601rev1) section. `config` and release 20240802 belong to the original 2024 custom coreboot build and are kept for history/rollback; `vgabios.bin` is still in active use (it's the VBIOS the fix injects).
 
 
 ### FT232H 
@@ -51,7 +51,9 @@ git clone https://codeberg.org/libreboot/lbmk
 
 ## Libreboot update (done 2026-07-18, release 26.01rev1)
 
-Running Libreboot `t420_8mb`, `seagrub_..._corebootfb_svenska.rom` (SeaBIOS + GRUB, libgfxinit, neutered ME). Built in a Proxmox CT with Debian Trixie; flashed internally on the T420 (kernel arg `iomem=relaxed`), no clip needed.
+**Final working image:** Libreboot `t420_8mb`, `seagrub_..._libgfxinit_txtmode_svenska.rom` **patched with the real Intel VBIOS** (see the [Windows/flicker fix](#windows--flicker-fix-add-the-vendor-vga-option-rom) below). SeaBIOS + GRUB, neutered ME. Built in a Proxmox CT with Debian Trixie; flashed internally on the T420 (kernel arg `iomem=relaxed`), no clip needed. The [Docker build](#one-shot-docker-build) does the whole download → inject → patch chain automatically.
+
+> Variant history: `corebootfb` boots Linux but Windows 11 hangs at the logo and the fix caused colour flicker on Kali. `txtmode` + real VBIOS is what the 2024 build used and is the layout that boots Windows 11 **and** Linux cleanly.
 
 ```sh
 # 1. On the T420: backup current flash (read twice, sha256sum must match, keep off-laptop)
@@ -69,8 +71,8 @@ sha512sum -c *.sha512 && gpg --verify *.sig     # key: libreboot.org/lbkey.asc
 # 4. Inject neutered ME + onboard NIC MAC  (stale "cannot create lock"? -> rm -f lock)
 ./mk inject libreboot-<RELEASE>_t420_8mb.tar.xz setmac 00:21:cc:61:b8:5c
 
-# 5. Extract tarball, take bin/t420_8mb/seagrub_..._corebootfb_svenska.rom
-#    (ignore cache/DO_NOT_FLASH/)
+# 5. Extract tarball, take bin/t420_8mb/seagrub_..._txtmode_svenska.rom
+#    (ignore cache/DO_NOT_FLASH/) -- then apply the VBIOS patch below before flashing
 
 # 6. On the T420, AC plugged in, wait for VERIFIED — on error reflash backup, do NOT reboot
 sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w <rom>
@@ -78,12 +80,14 @@ sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w <rom>
 
 First boot is slow / may reset once (memory training). Bricked: FT232H + clip, write `backup-a.rom`.
 
-### Windows fix: add the vendor VGA option ROM
+### Windows / flicker fix: add the vendor VGA option ROM
 
-Stock Libreboot uses libgfxinit + SeaVGABIOS (emulated INT 10h) — Linux boots fine but **Windows hangs at the boot logo**. The old 2024 build worked because it ran the real Intel VBIOS. Fix: inject `vgabios.bin` (in this repo) into the image with `cbfstool` (from lbmk, or the `libreboot-<RELEASE>_util.tar.xz` archive on the mirror):
+Stock Libreboot uses libgfxinit + SeaVGABIOS (emulated INT 10h): Linux boots but **Windows 11 hangs at the boot logo**, and on the `corebootfb` variant adding the VBIOS gives Kali **colour flicker at startup** (framebuffer vs. VGA double-init). The 2024 build never had this because it used **text-mode SeaBIOS + the real Intel VBIOS**. So: use the `txtmode` variant and inject `vgabios.bin` (in this repo).
+
+Get `cbfstool` from lbmk, or from the `libreboot-<RELEASE>_util.tar.xz` archive on the mirror.
 
 ```sh
-cp seagrub_t420_8mb_libgfxinit_corebootfb_svenska.rom windows-fix.rom
+cp seagrub_t420_8mb_libgfxinit_txtmode_svenska.rom windows-fix.rom
 # SeaBIOS picks pciVVVV,DDDD.rom by live PCI ID -> 0166 = Ivy Bridge HD 4000 (i7-3632QM),
 # 0126 = Sandy Bridge HD 3000 (only runs if that CPU is installed; harmless to keep both)
 cbfstool windows-fix.rom add -f vgabios.bin -n "pci8086,0166.rom" -t optionrom
@@ -93,7 +97,20 @@ cbfstool windows-fix.rom remove -n vgaroms/seavgabios.bin
 cbfstool windows-fix.rom print   # sanity check; etc/pci-optionrom-exec must not be 0
 ```
 
-Flash `windows-fix.rom` as in step 6 above. GRUB and Linux are unaffected.
+Flash `windows-fix.rom` as in step 6 above. GRUB is plain text (not the graphical splash); Windows 11 and Linux both boot clean.
+
+### One-shot Docker build
+
+`docker/` wraps steps 2–5 + the VBIOS patch into one image, so next release = rebuild with a new `RELEASE`. It downloads and GPG-verifies the ROM + util tarballs, injects ME + MAC, patches the `txtmode` variant, and drops the finished ROM in `./out/`.
+
+```sh
+# from the repo root (needs network for the ME blob download during inject)
+docker build -f docker/Dockerfile --build-arg RELEASE=26.01rev1 -t t420-rom .
+docker run --rm -v "$PWD/out:/output" t420-rom
+# -> out/seagrub_t420_8mb_libgfxinit_txtmode_svenska_vgabios.rom  (flash as step 6)
+```
+
+Override defaults with `-e` on `docker run` (`MAC`, `VARIANT`, `BOARD`, `MIRROR`). Still verify + flash on the T420 yourself — the container only builds the ROM.
 
 ## Update flash after it has been flashed the first time (historical — superseded by the Libreboot update section above)
 * [How do I "edit grub to add iomem=relaxed"?](https://askubuntu.com/questions/1120578/how-do-i-edit-grub-to-add-iomem-relaxed)
