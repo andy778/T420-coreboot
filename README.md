@@ -124,6 +124,6 @@ sudo flashrom -p internal:boardmismatch=force -c MX25L6406E/MX25L6408E -w corebo
 ## Tested hardware 
 * Updated CPU to Intel i7-3632QM — with coreboot one can go to Ivy Bridge
 * AX210 Mini PCIe WLAN 6E card  
-* BE200 Mini PCIe WLAN 7 card
+* BE200 Mini PCIe WLAN 7 card (have it, not installed/tested yet)
 * mSATA SanDisk U100 in the Mini PCIe slot next to the RAM in the bottom  
 
