@@ -24,8 +24,14 @@ gpg --import /tmp/lbkey.asc
 
 # 2. Download ROM tarball + checksum + signature and verify both.
 echo ">> Downloading ${TARBALL}"
-wget -q "${ROMDIR}/${TARBALL}" "${ROMDIR}/${TARBALL}.sha512" "${ROMDIR}/${TARBALL}.sig"
-sha512sum -c "${TARBALL}.sha512"
+wget -q "${ROMDIR}/${TARBALL}" "${ROMDIR}/${TARBALL}.sig"
+# Older releases publish .sha512, newer ones (26.10+) publish .sha256.
+if wget -q "${ROMDIR}/${TARBALL}.sha512"; then
+    sha512sum -c "${TARBALL}.sha512"
+else
+    wget -q "${ROMDIR}/${TARBALL}.sha256"
+    sha256sum -c "${TARBALL}.sha256"
+fi
 gpg --verify "${TARBALL}.sig" "${TARBALL}"
 
 # 3. Inject neutered ME (downloaded + me_cleaner'd by lbmk) and the NIC MAC.

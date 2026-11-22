@@ -110,9 +110,18 @@ docker run --rm -v "$PWD/out:/output" t420-rom
 # -> out/seagrub_t420_8mb_libgfxinit_txtmode_svenska_vgabios.rom  (flash as step 6)
 ```
 
+Expect a wall of `ERROR: .../metmp/aa/.data` lines during `./mk inject`: lbmk tries every extractor (7-Zip, innoextract, Dell PFS, …) on each piece of Intel's `FWUpdLcl.exe` to find the ME image, and each non-matching try is logged as an error. It's harmless as long as the build ends with `ROM written to /output/...`.
+
 Override defaults with `-e` on `docker run` (`MAC`, `VARIANT`, `BOARD`, `MIRROR`). Still verify + flash on the T420 yourself — the container only builds the ROM.
 
 Verified 2026-07-21: the Docker-built ROM's sha256sum matched the manually built `windows-fix2.rom` byte-for-byte.
+
+**UEFI (EDK2) variant, experimental:** `docker/Dockerfile.uefi` builds the Libreboot 26.11+ UEFI-only image (inject ME + MAC, no VBIOS patch). Build-tested with 26.11rev4 on 2026-11-22; **not flashed or booted**. Needs GPT + ESP OS installs — see [issue #5](https://github.com/andy778/T420-coreboot/issues/5).
+
+```bash
+docker build -f docker/Dockerfile.uefi --build-arg RELEASE=26.11rev4 -t t420-rom-uefi .
+docker run --rm -v "$PWD/out:/output" t420-rom-uefi
+```
 
 ## Update flash after it has been flashed the first time (historical — superseded by the Libreboot update section above)
 * [How do I "edit grub to add iomem=relaxed"?](https://askubuntu.com/questions/1120578/how-do-i-edit-grub-to-add-iomem-relaxed)
