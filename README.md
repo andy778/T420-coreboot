@@ -110,6 +110,8 @@ docker run --rm -v "$PWD/out:/output" t420-rom
 # -> out/seagrub_t420_8mb_libgfxinit_txtmode_svenska_vgabios.rom  (flash as step 6)
 ```
 
+Expect a wall of `ERROR: .../metmp/aa/.data` lines during `./mk inject`: lbmk tries every extractor (7-Zip, innoextract, Dell PFS, …) on each piece of Intel's `FWUpdLcl.exe` to find the ME image, and each non-matching try is logged as an error. It's harmless as long as the build ends with `ROM written to /output/...`.
+
 Override defaults with `-e` on `docker run` (`MAC`, `VARIANT`, `BOARD`, `MIRROR`). Still verify + flash on the T420 yourself — the container only builds the ROM.
 
 Verified 2026-07-21: the Docker-built ROM's sha256sum matched the manually built `windows-fix2.rom` byte-for-byte.
