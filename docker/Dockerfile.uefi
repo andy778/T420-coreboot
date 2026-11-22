@@ -1,0 +1,55 @@
+# Builds a Libreboot UEFI (EDK2) t420 ROM for this specific machine:
+#   Libreboot <RELEASE>  ->  ./mk inject (neutered ME + onboard NIC MAC)
+# No VBIOS patching: the EDK2 images use libgfxinit + corebootfb.
+# NOTE: 26.11+ releases are UEFI-only (no SeaBIOS/txtmode); the OS must boot via
+# UEFI (GPT + ESP). See issue #5. The working legacy image is docker/Dockerfile.
+# Output is written to /output (mount a host directory there).
+#
+# Build (from the repo root):
+#   docker build -f docker/Dockerfile.uefi --build-arg RELEASE=26.11rev4 -t t420-rom-uefi .
+# Run:
+#   docker run --rm -v "$PWD/out:/output" t420-rom-uefi
+
+FROM debian:trixie
+
+ARG RELEASE=26.11rev4
+ENV RELEASE=${RELEASE}
+
+# Runtime knobs (override with -e on `docker run`)
+# cbfstool comes from Debian's coreboot-utils package (no _util.tar.xz exists
+# on the mirror -- only roms/ and the full src tarball are published).
+ENV BOARD=lenovo_thinkpad_t420_8mb \
+    VARIANT=uefi_edk2_lenovo_thinkpad_t420_8mb_libgfxinit_corebootfb \
+    MAC=00:21:cc:61:b8:5c \
+    MIRROR=https://mirrors.mit.edu/libreboot/stable
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git ca-certificates wget xz-utils gnupg gosu coreboot-utils \
+    # lbmk's own `apt-get install` (in `./mk dependencies`) runs without -y;
+    # auto-confirm it since there's no TTY to answer the [Y/n] prompt.
+    && echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90assumeyes
+
+# lbmk refuses to run as root, so build/inject happen as this user.
+RUN useradd -m -u 1000 builder
+
+# Clone + pin lbmk, install its build dependencies (root-only step).
+# apt-get update again here: `./mk dependencies` runs its own apt-get install,
+# so the package index must still be present.
+RUN apt-get update \
+    && git clone https://codeberg.org/libreboot/lbmk /home/builder/lbmk \
+    && cd /home/builder/lbmk \
+    && git fetch --tags \
+    && git checkout "${RELEASE}" \
+    && ./mk dependencies debian \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY docker/build-rom-uefi.sh /usr/local/bin/build-rom.sh
+RUN chmod +x /usr/local/bin/build-rom.sh
+
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+VOLUME /output
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
